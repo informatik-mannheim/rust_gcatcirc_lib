@@ -214,6 +214,15 @@ impl CircGraph {
         return Ok(g);
     }
 
+    pub fn get_edges(&self) -> Vec<[String;2]> {
+         self.e.iter().map(|e| [e.from.label.clone(), e.to.label.clone()]).collect()
+    }
+
+    ///
+    pub fn get_vertices(&self) -> Vec<String> {
+         self.v.iter().map(|v| v.label.clone()).collect()
+    }
+
     /// Returns if the orientated graph <i>G</i> is cyclic
     ///
     /// If the orientated graph <i>G(X)</i> associated to a code <i>X</i> is cyclic, i.e., the graph contains at least one
@@ -876,6 +885,42 @@ mod tests {
 
             assert_eq!(res, true);
         }
+    }
+
+    #[test]
+    fn getter() {
+        let code = match CircCode::new_from_vec(vec!["ADBD".to_string(), "BAD".to_string()]) {
+            Ok(code) => code,
+            _ => unimplemented!() //No error handling in the example
+        };
+
+        let graph = match CircGraph::new(&code) {
+            Ok(graph) => graph,
+            _ => unimplemented!() //No error handling in the example
+        };
+
+        let v = graph.get_vertices();
+
+        assert!(v.contains(&"A".to_string()));
+        assert!(v.contains(&"AD".to_string()));
+        assert!(v.contains(&"ADB".to_string()));
+        assert!(v.contains(&"DBD".to_string()));
+        assert!(v.contains(&"BD".to_string()));
+        assert!(v.contains(&"D".to_string()));
+        assert!(v.contains(&"B".to_string()));
+        assert!(v.contains(&"BA".to_string()));
+        assert!(!v.contains(&"BAD".to_string()));
+        assert_eq!(v.len(), 8);
+
+        let e = graph.get_edges();
+
+        assert!(e.contains(&["A".to_string(), "DBD".to_string()]));
+        assert!(e.contains(&["AD".to_string(), "BD".to_string()]));
+        assert!(e.contains(&["ADB".to_string(), "D".to_string()]));
+
+        assert!(e.contains(&["B".to_string(), "AD".to_string()]));
+        assert!(e.contains(&["BA".to_string(), "D".to_string()]));
+        assert_eq!(e.len(), 5);
     }
 
     #[test]

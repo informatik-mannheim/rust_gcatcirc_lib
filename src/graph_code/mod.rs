@@ -304,5 +304,17 @@ mod tests {
             assert_eq!(is_code, false);
             assert_eq!(an_seq, vec!["BDADCC".to_string(), "BDADCC".to_string(), "ADCC".to_string()]);
         }
+        {
+
+            let a = match CircCode::new_from_vec(vec!["AT".to_string(), "GC".to_string(), "AAC".to_string(), "GTT".to_string(), "GAA".to_string(), "TTC".to_string(), "AAT".to_string(), "ATT".to_string(), "ACC".to_string(), "GGT".to_string(), "GAC".to_string(), "GTC".to_string(), "CAG".to_string(), " CTG".to_string(), "GTA".to_string(), "TAC".to_string(), "ATC".to_string(), "GAT".to_string(), "GCC".to_string(), "GGC".to_string(), "CTC".to_string(), "GAG".to_string()]) {
+                Ok(code) => code,
+                _ => unimplemented!() //No error handling in the example
+            };
+
+            let b = CodeGraph::new(&a);
+            let (is_code, _an_seq) = b.all_ambiguous_sequences();
+
+            assert_eq!(is_code, true);
+        }
     }
 }
