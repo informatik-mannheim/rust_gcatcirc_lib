@@ -267,7 +267,9 @@ impl CircCode {
 
     /// This function checks if a code is Cn-circular.
     ///
-    /// That all circular permutations of the code (of all tuples) are circular codes again. This is an extended property of circular codes.
+    /// That all circular permutations of the code (of all tuples) are circular codes again.
+    /// In total, this function checks all 'n' circular permutations where 'n' is the greatest
+    /// common multiple of all tuple lengths used. This is an extended property of circular codes.
     pub fn is_cn_circular(&self) -> bool {
         let mut copy_code = self.clone();
         for _i in 1..*self.tuple_length.last().unwrap() {
