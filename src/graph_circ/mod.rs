@@ -214,13 +214,13 @@ impl CircGraph {
         return Ok(g);
     }
 
-    pub fn get_edges(&self) -> Vec<[String;2]> {
-         self.e.iter().map(|e| [e.from.label.clone(), e.to.label.clone()]).collect()
+    pub fn get_edges(&self) -> Vec<[String; 2]> {
+        self.e.iter().map(|e| [e.from.label.clone(), e.to.label.clone()]).collect()
     }
 
     ///
     pub fn get_vertices(&self) -> Vec<String> {
-         self.v.iter().map(|v| v.label.clone()).collect()
+        self.v.iter().map(|v| v.label.clone()).collect()
     }
 
     /// Returns if the orientated graph <i>G</i> is cyclic
@@ -287,7 +287,7 @@ impl CircGraph {
     /// }
     /// ```
     pub fn all_longest_paths(&self) -> Option<Vec<Vec<Rc<elements::Edge>>>> {
-        if self.is_cyclic() {return None}
+        if self.is_cyclic() { return None; }
         let start_edges = self.get_path_start_edges();
         let all_paths: Rc<RefCell<Vec<Vec<Rc<elements::Edge>>>>> = Rc::new(RefCell::new(Vec::new()));
         for e in start_edges {
@@ -297,10 +297,10 @@ impl CircGraph {
         let mut all_paths = all_paths.borrow_mut().clone();
         all_paths.sort_by(|x, y| x.len().cmp(&y.len()));
         let last_path_len = all_paths.last().unwrap().len();
-        return Some(all_paths.into_iter().filter(|x| x.len() == last_path_len ).collect());
+        return Some(all_paths.into_iter().filter(|x| x.len() == last_path_len).collect());
     }
 
-    fn rec_find_all_longest_paths(&self, current_path: Vec<Rc<elements::Edge>>,all_paths: Rc<RefCell<Vec<Vec<Rc<elements::Edge>>>>>) {
+    fn rec_find_all_longest_paths(&self, current_path: Vec<Rc<elements::Edge>>, all_paths: Rc<RefCell<Vec<Vec<Rc<elements::Edge>>>>>) {
         if let Some(current_pos) = current_path.last() {
             let targets = self.get_all_outgoing_edges_of_vertices(&vec![&current_pos.to]);
             for t in targets {
@@ -339,9 +339,9 @@ impl CircGraph {
     /// ```
     pub fn all_longest_paths_as_string_vec(&self) -> Option<Vec<String>> {
         if let Some(all_cycles) = self.all_longest_paths() {
-            return Some(all_cycles.into_iter().map(|x| Self::path_as_string(&x)).collect())
+            return Some(all_cycles.into_iter().map(|x| Self::path_as_string(&x)).collect());
         }
-        return None
+        return None;
     }
 
     /// This function does the same as [CircGraph::all_longest_paths()], it just formats the return type.
@@ -411,9 +411,9 @@ impl CircGraph {
     /// ```
     pub fn all_longest_paths_as_vertex_vec(&self) -> Option<Vec<Vec<String>>> {
         if let Some(all_cycles) = self.all_longest_paths() {
-            return Some(all_cycles.into_iter().map(|x| Self::path_as_vertex_vec(&x)).collect())
+            return Some(all_cycles.into_iter().map(|x| Self::path_as_vertex_vec(&x)).collect());
         }
-        return None
+        return None;
     }
 
     /// Returns if the orientated graph <i>G</i> is cyclic and if so, all cyclic paths
@@ -510,15 +510,17 @@ impl CircGraph {
     ///         _ => unimplemented!() //No error handling in the example
     ///     };
     ///
-    ///     let (is_cyclic, subgraph) =  graph.all_cycles_as_sub_graph();
+    ///     if let Ok(subgraph) = graph.all_cycles_as_sub_graph() {
+    ///     }
     ///
     /// }
     /// ```
-    pub fn all_cycles_as_sub_graph(&self) -> Result<(bool, Self), CircGraphErr> {
+    pub fn all_cycles_as_sub_graph(&self) -> Result<Self, CircGraphErr> {
         let (res, all_cycles) = self.all_cycles();
+        if !res { return Err(CircGraphErr::EmptyCode); }
         let all_cycles = all_cycles.into_iter().flatten().collect();
         let graph = self.subgraph_from_list_of_edges(all_cycles)?;
-        return Ok((res, graph));
+        return Ok(graph);
     }
 
 
@@ -861,12 +863,9 @@ mod tests {
             };
             assert_eq!(new_graph.e, cycles[0]);
 
-            let (_, new_graph) = match graph.all_cycles_as_sub_graph() {
-                Ok(graph) => graph,
-                _ => unimplemented!()
-            };
-
-            assert_eq!(new_graph.e.len(), 5);
+            if let Ok(new_graph) = graph.all_cycles_as_sub_graph() {
+                assert_eq!(new_graph.e.len(), 5);
+            }
         }
         {
             let code = match CircCode::new_from_vec(vec!["ACB".to_string(), "BDC".to_string(), "ABC".to_string(), "DDC".to_string(), "BAA".to_string(), "BBB".to_string(), "BDA".to_string(), "ACD".to_string(), "ADA".to_string(), "BBC".to_string(), "DDB".to_string(), "AAD".to_string(), "CDC".to_string(), "ADC".to_string(), "CAD".to_string(), "CBD".to_string(), "ACA".to_string(), "BCA".to_string(), "CCD".to_string(), "DCD".to_string(), "ABA".to_string(), "BCC".to_string(), "ADB".to_string(), "CAA".to_string(), "DCB".to_string(), "DBB".to_string(), "CBA".to_string(), "CDD".to_string(), "DAD".to_string(), "CDB".to_string()]) {
@@ -963,7 +962,7 @@ mod tests {
         let a = graph.all_longest_paths().unwrap();
         assert_eq!(a[0].len(), 4);
 
-        let code  = CircCode::new_from_vec(vec!["AAC".to_string(), "AAG".to_string(), "AAT".to_string(), "ACC".to_string(), "ACG".to_string(), "ACT".to_string(), "AGC".to_string(), "AGG".to_string(), "AGT".to_string(), "ATT".to_string(), "CCG".to_string(), "CCT".to_string(), "CGG".to_string(), "CGT".to_string(), "CTT".to_string(), "GCT".to_string(), "GGT".to_string(), "GTT".to_string(), "TCA".to_string(), "TGA".to_string()]).unwrap_or_default();
+        let code = CircCode::new_from_vec(vec!["AAC".to_string(), "AAG".to_string(), "AAT".to_string(), "ACC".to_string(), "ACG".to_string(), "ACT".to_string(), "AGC".to_string(), "AGG".to_string(), "AGT".to_string(), "ATT".to_string(), "CCG".to_string(), "CCT".to_string(), "CGG".to_string(), "CGT".to_string(), "CTT".to_string(), "GCT".to_string(), "GGT".to_string(), "GTT".to_string(), "TCA".to_string(), "TGA".to_string()]).unwrap_or_default();
 
         let graph = match CircGraph::new(&code) {
             Ok(graph) => graph,
@@ -974,7 +973,7 @@ mod tests {
         assert_eq!(a.len(), 16);
         assert_eq!(a[0].len(), 8);
 
-        let code  = CircCode::new_from_vec(vec!["AAC".to_string(), "CAA".to_string()]).unwrap_or_default();
+        let code = CircCode::new_from_vec(vec!["AAC".to_string(), "CAA".to_string()]).unwrap_or_default();
 
         let graph = match CircGraph::new(&code) {
             Ok(graph) => graph,
