@@ -437,8 +437,7 @@ impl CircGraph {
     ///         _ => unimplemented!() //No error handling in the example
     ///     };
     ///
-    ///     let (is_cyclic, cyclic_paths) =  graph.all_cycles();
-    ///     if is_cyclic {
+    ///     if let Some(cyclic_paths) = graph.all_cycles() {
     ///         let subgraph = match graph.subgraph_from_list_of_edges(cyclic_paths[0].clone()) {
     ///             Ok(graph) => graph,
     ///             _ => unimplemented!() //No error handling in the example
@@ -446,12 +445,14 @@ impl CircGraph {
     ///     }
     /// }
     /// ```
-    pub fn all_cycles(&self) -> (bool, Vec<Vec<Rc<elements::Edge>>>) {
+    pub fn all_cycles(&self) -> Option<Vec<Vec<Rc<elements::Edge>>>> {
         let all_cycles = Rc::new(RefCell::new(Vec::new()));
-        let res = self.start_reg_is_cyclic(true, Some(all_cycles.clone()));
+        if !self.start_reg_is_cyclic(true, Some(all_cycles.clone())) {
+            return None;
+        }
         let mut all_cycles = all_cycles.borrow_mut().clone();
         all_cycles.sort_by(|x, y| x.len().cmp(&y.len()));
-        return (res, all_cycles);
+        return Some(all_cycles);
     }
 
     /// This function does the same as [CircGraph::all_cycles()], it just formats the return type.
@@ -472,17 +473,19 @@ impl CircGraph {
     ///         _ => unimplemented!() //No error handling in the example
     ///     };
     ///
-    ///     let (is_cyclic, cyclic_paths) =  graph.all_cycles_as_string_vec();
-    ///     if is_cyclic {
+    ///     if let Some(cyclic_paths) =  graph.all_cycles_as_string_vec() {
     ///         for cyclic_path in cyclic_paths {
     ///             println!("{}", cyclic_path)
     ///         }
     ///     }
     /// }
     /// ```
-    pub fn all_cycles_as_string_vec(&self) -> (bool, Vec<String>) {
-        let (res, all_cycles) = self.all_cycles();
-        return (res, all_cycles.into_iter().map(|x| Self::path_as_string(&x)).collect());
+    pub fn all_cycles_as_string_vec(&self) -> Option<Vec<String>> {
+        if let Some(all_cycles) = self.all_cycles() {
+            return Some(all_cycles.into_iter().map(|x| Self::path_as_string(&x)).collect());
+        }
+
+        return None;
     }
 
     /// This function does the same as [CircGraph::all_cycles()], it just formats the return type.
@@ -516,11 +519,12 @@ impl CircGraph {
     /// }
     /// ```
     pub fn all_cycles_as_sub_graph(&self) -> Result<Self, CircGraphErr> {
-        let (res, all_cycles) = self.all_cycles();
-        if !res { return Err(CircGraphErr::EmptyCode); }
-        let all_cycles = all_cycles.into_iter().flatten().collect();
-        let graph = self.subgraph_from_list_of_edges(all_cycles)?;
-        return Ok(graph);
+        if let Some(all_cycles) = self.all_cycles() {
+            let all_cycles = all_cycles.into_iter().flatten().collect();
+            let graph = self.subgraph_from_list_of_edges(all_cycles)?;
+            return Ok(graph)
+        }
+        return Err(CircGraphErr::EmptyCode);
     }
 
 
@@ -542,13 +546,16 @@ impl CircGraph {
     ///         _ => unimplemented!() //No error handling in the example
     ///     };
     ///
-    ///     let (is_cyclic, cyclic_paths) =  graph.all_cycles_as_vertex_vec();
+    ///     if let Some(cyclic_paths) =  graph.all_cycles_as_string_vec() {}
     ///
     /// }
     /// ```
-    pub fn all_cycles_as_vertex_vec(&self) -> (bool, Vec<Vec<String>>) {
-        let (res, all_cycles) = self.all_cycles();
-        return (res, all_cycles.into_iter().map(|x| Self::path_as_vertex_vec(&x)).collect());
+    pub fn all_cycles_as_vertex_vec(&self) -> Option<Vec<Vec<String>>> {
+        if let Some(all_cycles) = self.all_cycles() {
+            return Some(all_cycles.into_iter().map(|x| Self::path_as_vertex_vec(&x)).collect())
+        }
+
+        return None;
     }
 
     /// Starts the recursive process to check whether the graph is cyclic
@@ -825,9 +832,7 @@ mod tests {
                 _ => unimplemented!()
             };
 
-            let (res, cycles) = graph.all_cycles();
-
-            assert_eq!(res, true);
+            let cycles = graph.all_cycles().unwrap();
             assert_eq!(cycles.len(), 1);
         }
         {
@@ -841,19 +846,17 @@ mod tests {
                 _ => unimplemented!()
             };
 
-            let (res, cycles) = graph.all_cycles();
+            let cycles= graph.all_cycles().unwrap();
 
-            assert_eq!(res, true);
             assert_eq!(cycles.len(), 2);
 
-            let (res, cycles_string) = graph.all_cycles_as_string_vec();
-            assert_eq!(res, true);
+            let cycles_string = graph.all_cycles_as_string_vec().unwrap();
             assert_eq!(cycles_string.len(), 2);
             assert_eq!(cycles_string[0], "D -> AA -> D");
             assert_eq!(cycles_string[1], "A -> AD -> B -> A");
 
-            let (res, cycles_string) = graph.all_cycles_as_vertex_vec();
-            assert_eq!(res, true);
+            let cycles_string = graph.all_cycles_as_vertex_vec().unwrap();
+
             assert_eq!(cycles_string[0], vec!["D", "AA", "D"]);
             assert_eq!(cycles_string[1], vec!["A", "AD", "B", "A"]);
 
@@ -878,11 +881,9 @@ mod tests {
                 _ => unimplemented!()
             };
 
-            let (res, cycles) = graph.all_cycles();
+            let cycles = graph.all_cycles().unwrap();
 
             assert_eq!(cycles.len(), 838);
-
-            assert_eq!(res, true);
         }
     }
 

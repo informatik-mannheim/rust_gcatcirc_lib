@@ -253,12 +253,13 @@ impl CircCode {
             Ok(graph) => graph,
             _ => return 0
         };
-        let (is_cyclic, all_paths) = graph.all_cycles();
-        if !is_cyclic { return u32::MAX; } else if let Some(cycle) = all_paths.last() {
-            if cycle.len() % 2 == 0 {
-                return (cycle.len() as u32 / 2) - 1;
-            } else {
-                return cycle.len() as u32 - 1;
+        if let Some(all_paths) = graph.all_cycles() {
+            if let Some(cycle) = all_paths.last() {
+                if cycle.len() % 2 == 0 {
+                    return (cycle.len() as u32 / 2) - 1;
+                } else {
+                    return cycle.len() as u32 - 1;
+                }
             }
         }
 
