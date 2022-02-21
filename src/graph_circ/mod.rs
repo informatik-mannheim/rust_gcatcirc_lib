@@ -201,8 +201,8 @@ impl CircGraph {
             if e.to.label.len() == i as usize || e.from.label.len() == i as usize {
                 let v_to = Rc::new((*e.to).clone());
                 let v_from = Rc::new((*e.from).clone());
-                g.v.push(v_to.clone());
-                g.v.push(v_from.clone());
+                let v_to = g.push_vertex(v_to.label.clone())?;
+                let v_from = g.push_vertex(v_from.label.clone())?;
                 g.push_edge(v_from, v_to);
             }
         }
@@ -942,6 +942,7 @@ mod tests {
         };
 
         assert_eq!(subgraph.e.len(), 6);
+        assert_eq!(subgraph.v.len(), 9);
 
         let subgraph = match graph.component(5) {
             Err(e) => e,
