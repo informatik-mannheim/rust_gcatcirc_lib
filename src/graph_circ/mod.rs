@@ -197,12 +197,14 @@ impl CircGraph {
             e: vec![],
         };
 
+        for v in &self.v {
+            g.v.push(v.clone());
+        }
+
         for e in &self.e {
             if e.to.label.len() == i as usize || e.from.label.len() == i as usize {
                 let v_to = Rc::new((*e.to).clone());
                 let v_from = Rc::new((*e.from).clone());
-                g.v.push(v_to.clone());
-                g.v.push(v_from.clone());
                 g.push_edge(v_from, v_to);
             }
         }
