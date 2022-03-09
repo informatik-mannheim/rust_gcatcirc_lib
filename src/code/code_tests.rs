@@ -155,10 +155,25 @@ mod tests {
         }
         {
             // a3({001, 01, 1000}) = {100, 01, 0010} -> non-circular
-            let a = CircCode::new_from_vec(vec!["001".to_string(), "01".to_string(),  "1000".to_string()]).unwrap_or_default();
+            let a = CircCode::new_from_vec(vec!["001".to_string(), "01".to_string(), "1000".to_string()]).unwrap_or_default();
 
             let is_circular = a.is_cn_circular();
             assert_eq!(is_circular, false);
+        }
+    }
+
+    #[test]
+    fn k_graph_circular() {
+        {
+            let a = CircCode::new_from_vec(vec!["1100".to_string(), "0022".to_string(), "2233".to_string(), "3311".to_string()]).unwrap_or_default();
+            if let Some(is_circular) = a.get_k_graph_circular() {
+                assert_eq!(is_circular, 4);
+            }
+        }
+        {
+            let a = CircCode::new_from_vec(vec!["1100".to_string(), "0022".to_string(), "2211".to_string(), "2233".to_string(), "3311".to_string()]).unwrap_or_default();
+            assert_eq!(a.get_k_graph_circular(), None);
+
         }
     }
 
@@ -179,7 +194,6 @@ mod tests {
             let is_circular = a.get_exact_k_circular();
             assert_eq!(is_circular, u32::MAX);
         }
-
     }
 
     #[test]
@@ -199,6 +213,5 @@ mod tests {
             assert_eq!(a.is_comma_free(), true);
             assert_eq!(a.is_strong_comma_free(), false);
         }
-
     }
 }
