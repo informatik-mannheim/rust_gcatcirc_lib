@@ -3,6 +3,7 @@ use crate::graph_code::CodeGraph;
 use crate::graph_circ::{CircGraph, CircGraphErr};
 
 mod code_tests;
+use num;
 
 #[derive(Debug, PartialEq)]
 pub enum CircCodeErr {
@@ -268,12 +269,17 @@ impl CircCode {
 
     /// This function checks if a code is Cn-circular.
     ///
-    /// That all circular permutations of the code (of all tuples) are circular codes again.
-    /// In total, this function checks all 'n' circular permutations where 'n' is the greatest
+    /// A code is cn circular if all circular permutations of the code (of all tuples) are circular codes again.
+    /// In total, this function checks 'x' circular permutations where 'x' is the least
     /// common multiple of all tuple lengths used. This is an extended property of circular codes.
     pub fn is_cn_circular(&self) -> bool {
         let mut copy_code = self.clone();
-        for _i in 1..*self.tuple_length.last().unwrap() {
+        let mut lcm = 1;
+        for i in &self.tuple_length {
+            lcm = num::integer::lcm(lcm, *i);
+        }
+
+        for _i in 1..lcm {
             copy_code.shift(1);
             if !copy_code.is_circular() { return false; }
         }
