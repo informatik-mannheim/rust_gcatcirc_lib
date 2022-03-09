@@ -245,7 +245,7 @@ impl CircCode {
         return false;
     }
 
-    /// This function checks if a code is circular.
+    /// This function checks if a code is k-circular.
     ///
     /// K circle codes are a less restrictive code from the family of circle codes. These codes only ensure that for every
     /// concatenation of less than k tuples from X written on a circle, there is only one partition in tuples from X.
@@ -265,6 +265,26 @@ impl CircCode {
         }
 
         return u32::MAX;
+    }
+
+    /// This function checks if a code is k-graph-circular.
+    ///
+    /// K-graph circle codes are a more restrictive than k-circle codes.
+    /// These codes only ensure that all cycles in the representing graph have a common length.
+    pub fn get_k_graph_circular(&self) -> Option<u32> {
+        let graph = match CircGraph::new(self) {
+            Ok(graph) => graph,
+            _ => return None
+        };
+        if let Some(all_paths) = graph.all_cycles() {
+            let mut ps = all_paths.into_iter().map(|x| x.len() as u32).collect::<Vec<u32>>();
+            ps.dedup();
+            if ps.len() == 1 {
+                return Some(ps[0])
+            }
+        }
+
+        return None;
     }
 
     /// This function checks if a code is Cn-circular.
